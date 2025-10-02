@@ -54,23 +54,62 @@ export interface DriveFile {
 }
 
 // --- Automation Types ---
-export type TriggerType = 'new_customer' | 'job_status_updated';
-export type ActionType = 'webhook' | 'create_task' | 'add_to_schedule' | 'send_email' | 'update_inventory';
+export type TriggerType =
+  | 'new_customer'
+  | 'job_status_updated'
+  | 'job_created'
+  | 'task_completed'
+  | 'invoice_overdue'
+  | 'scheduled_time'
+  | 'inventory_low';
+
+export type ActionType =
+  | 'webhook'
+  | 'create_task'
+  | 'add_to_schedule'
+  | 'send_email'
+  | 'update_inventory'
+  | 'send_sms'
+  | 'update_job_status'
+  | 'assign_team'
+  | 'create_invoice';
 
 export interface Automation {
     id?: number;
     name: string;
+    description?: string;
     trigger_type: TriggerType;
     trigger_config: {
-        to_status?: string; // e.g., 'sold'
+        to_status?: string;
+        from_status?: string;
+        job_value_min?: number;
+        job_value_max?: number;
+        time?: string;
+        days_overdue?: number;
+        stock_threshold?: number;
+        item_name?: string;
     };
     action_type: ActionType;
     action_config: {
-        url?: string; // for webhook
+        url?: string;
         task_title?: string;
         task_description?: string;
-        email_subject?: string; // for send_email
-        email_body?: string;    // for send_email
+        task_priority?: 'low' | 'medium' | 'high';
+        email_subject?: string;
+        email_body?: string;
+        email_recipient?: 'customer' | 'team' | 'custom';
+        custom_email?: string;
+        sms_message?: string;
+        sms_recipient?: 'customer' | 'team' | 'custom';
+        custom_phone?: string;
+        new_status?: string;
+        team_ids?: number[];
+        delay_minutes?: number;
     };
+    conditions?: {
+        field?: string;
+        operator?: 'equals' | 'greater_than' | 'less_than' | 'contains';
+        value?: any;
+    }[];
     is_enabled: boolean;
 }
